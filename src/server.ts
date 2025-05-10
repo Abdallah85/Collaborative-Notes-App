@@ -1,6 +1,9 @@
 import express from "express";
 import connectDB from "./db/database";
 import dotenv from "dotenv";
+import ApiError from "./utils/apiError";
+import authRoutes from "./auth/routes/auth.routes";
+import handelRoute from "./middelware/handelroute.middelware";
 
 // Load environment variables
 dotenv.config();
@@ -15,20 +18,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
+app.use("/api/auth", authRoutes);
 
 // Error handling middleware
 app.use(
   (
-    err: Error,
+    err: ApiError,
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) => {
-    console.error(err.stack);
-    res.status(500).send("Something broke!");
+    const statusCode: number = err.statusCode || 500;
+    const message: string = err.message || "Internal Server Error";
+    res.status(statusCode).json(message);
   }
 );
 

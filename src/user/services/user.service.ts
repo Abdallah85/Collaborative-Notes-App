@@ -1,31 +1,32 @@
 import { User } from "../schemas/user.schema";
 import { IUser } from "../interface/Iuser.interface";
 import bcrypt from "bcryptjs";
+import status from "http-status";
+import ApiError from "../../utils/apiError";
 
 export class UserService {
   // Create a new user
   async createUser(userData: IUser): Promise<IUser> {
-    try {
-      // Check if user already exists
-      const existingUser = await User.findOne({ email: userData.email });
-      if (existingUser) {
-        throw new Error("User with this email already exists");
-      }
-
-      // Hash password
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(userData.password, salt);
-
-      // Create new user with hashed password
-      const user = new User({
-        ...userData,
-        password: hashedPassword,
-      });
-
-      return await user.save();
-    } catch (error) {
-      throw error;
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: userData.email });
+    if (existingUser) {
+      throw new ApiError(
+        status.BAD_REQUEST,
+        "User with this email already exists"
+      );
     }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(userData.password, salt);
+
+    // Create new user with hashed password
+    const user = await User.create({
+      ...userData,
+      password: hashedPassword,
+    });
+
+    return user;
   }
 
   // Get user by ID
