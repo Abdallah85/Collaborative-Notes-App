@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authenticate, authorize } from "../../auth/middleware/auth.middleware";
 import NoteController from "../controller/note.controller";
-import { validateNote } from "../middleware/note.validation";
+import { validateEditNote, validateNote } from "../middleware/note.validation";
 import { Role } from "../../user/enums/role.enum";
 
 const router = Router();
@@ -17,5 +17,16 @@ router.post(
   validateNote as any,
   noteController.createNote
 );
+
+router.put(
+  "/:noteId",
+  authorize(Role.ADMIN),
+  validateEditNote as any,
+  noteController.updateNote
+);
+
+router.get("/:noteId/history", noteController.getNoteHistory);
+
+router.delete("/:noteId", authorize(Role.ADMIN), noteController.deleteNote);
 
 export default router;
