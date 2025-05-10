@@ -1,37 +1,31 @@
 import { User } from "../schemas/user.schema";
 import { IUser } from "../interface/Iuser.interface";
 import bcrypt from "bcryptjs";
-import status from "http-status";
 import ApiError from "../../utils/apiError";
 
 export class UserService {
   // Create a new user
   async createUser(userData: IUser): Promise<IUser> {
-    // Check if user already exists
-    const existingUser = await User.findOne({ email: userData.email });
-    if (existingUser) {
-      throw new ApiError(status.CONFLICT, "Email already exists");
+    try {
+      const user = await User.create(userData);
+      return user;
+    } catch (error) {
+      throw new ApiError(500, "Failed to create user");
     }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-
-    // Create new user with hashed password
-    const user = await User.create({
-      ...userData,
-      password: hashedPassword,
-    });
-
-    return user;
   }
 
   // Get user by ID
   async getUserById(id: string): Promise<IUser> {
-    const user = await User.findById(id);
-    if (!user) {
-      throw new ApiError(status.NOT_FOUND, "User not found");
+    try {
+      const user = await User.findById(id);
+      if (!user) {
+        throw new ApiError(404, "User not found");
+      }
+      return user;
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(500, "Failed to get user");
     }
-    return user;
   }
 
   // Get user by email
@@ -49,28 +43,28 @@ export class UserService {
 
   // Update user
   async updateUser(id: string, updateData: Partial<IUser>): Promise<IUser> {
-    if (updateData.password) {
-      updateData.password = await bcrypt.hash(updateData.password, 10);
+    try {
+      const user = await User.findByIdAndUpdate(id, updateData, { new: true });
+      if (!user) {
+        throw new ApiError(404, "User not found");
+      }
+      return user;
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(500, "Failed to update user");
     }
-
-    const user = await User.findByIdAndUpdate(
-      id,
-      { $set: updateData },
-      { new: true }
-    );
-
-    if (!user) {
-      throw new ApiError(status.NOT_FOUND, "User not found");
-    }
-
-    return user;
   }
 
   // Delete user
   async deleteUser(id: string): Promise<void> {
-    const user = await User.findByIdAndDelete(id);
-    if (!user) {
-      throw new ApiError(status.NOT_FOUND, "User not found");
+    try {
+      const user = await User.findByIdAndDelete(id);
+      if (!user) {
+        throw new ApiError(404, "User not found");
+      }
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(500, "Failed to delete user");
     }
   }
 

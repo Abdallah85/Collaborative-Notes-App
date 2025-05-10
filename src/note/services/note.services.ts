@@ -3,7 +3,6 @@ import { ICreateNote } from "../interface/createnote.interface";
 import { INote } from "../interface/Inote.interface";
 import Note from "../schemas/note.schema";
 import ApiError from "../../utils/apiError";
-import status from "http-status";
 import EditNote from "../schemas/editnote.schema";
 import { IEditNote } from "../interface/Ieditnote.interface";
 
@@ -23,7 +22,7 @@ class NoteService {
   ): Promise<INote> {
     const note = await Note.findById(noteId);
     if (!note) {
-      throw new ApiError(status.NOT_FOUND, "Note not found");
+      throw new ApiError(404, "Note not found");
     }
     const oldContent = note.content;
     note.content = content;
@@ -43,7 +42,7 @@ class NoteService {
     noteId: mongoose.Types.ObjectId
   ): Promise<IEditNote[] | null> {
     const trackNote: IEditNote[] | null = await EditNote.findOne({ noteId });
-    if (!trackNote) throw new ApiError(status.NOT_FOUND, "Note not found");
+    if (!trackNote) throw new ApiError(404, "Note not found");
     return trackNote;
   }
 
@@ -54,7 +53,7 @@ class NoteService {
 
   async deleteNote(noteId: mongoose.Types.ObjectId): Promise<INote> {
     const note = await Note.findById(noteId);
-    if (!note) throw new ApiError(status.NOT_FOUND, "Note not found");
+    if (!note) throw new ApiError(404, "Note not found");
     await note.deleteOne();
     return note;
   }

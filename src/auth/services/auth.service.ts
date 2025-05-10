@@ -7,9 +7,10 @@ import {
   ITokenPayload,
 } from "../interface/auth.interface";
 import { IUser } from "../../user/interface/Iuser.interface";
-import status from "http-status";
 import ApiError from "../../utils/apiError";
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
+import { User } from "../../user/schemas/user.schema";
 
 export class AuthService {
   private userService: UserService;
@@ -55,25 +56,21 @@ export class AuthService {
     }
   }
 
-  async login(credentials: ILoginCredentials): Promise<IAuthResponse> {
+  async login(
+    email: string,
+    password: string
+  ): Promise<{ user: IUser; token: string }> {
     try {
-      // Find user by email
-      const user = await this.userService.getUserByEmail(credentials.email);
+      const user = await User.findOne({ email });
       if (!user) {
-        throw new ApiError(status.UNAUTHORIZED, "Invalid email or password");
+        throw new ApiError(401, "Invalid email or password");
       }
 
-      // Verify password
-      const isPasswordValid = await this.userService.verifyPassword(
-        credentials.password,
-        user.password
-      );
-
+      const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
-        throw new ApiError(status.UNAUTHORIZED, "Invalid email or password");
+        throw new ApiError(401, "Invalid email or password");
       }
 
-      // Generate token
       const tokenPayload: ITokenPayload = {
         userId: user.id,
         email: user.email,
@@ -81,32 +78,36 @@ export class AuthService {
       };
 
       const token = this.generateToken(tokenPayload);
-
-      return {
-        user,
-        token,
-      };
+      return { user, token };
     } catch (error) {
-      throw error;
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(500, "Failed to login");
     }
   }
 
-  async verifyToken(token: string): Promise<ITokenPayload> {
+  async verifyToken(token: string): Promise<IUser> {
     try {
       const decoded = jwt.verify(token, this.JWT_SECRET) as ITokenPayload;
-      return decoded;
+      const user = await User.findById(decoded.userId);
+      if (!user) {
+        throw new ApiError(401, "User not found");
+      }
+      return user;
     } catch (error) {
-      throw new ApiError(status.UNAUTHORIZED, "Invalid or expired token");
+      if (error instanceof jwt.JsonWebTokenError) {
+        throw new ApiError(401, "Invalid token");
+      }
+      throw new ApiError(500, "Failed to verify token");
     }
   }
 
   async getCurrentUser(token: string): Promise<Omit<IUser, "password">> {
     try {
       const decoded = await this.verifyToken(token);
-      const user = await this.userService.getUserById(decoded.userId);
+      const user = await this.userService.getUserById(decoded.id);
 
       if (!user) {
-        throw new ApiError(status.NOT_FOUND, "User not found");
+        throw new ApiError(404, "User not found");
       }
 
       const { password, ...userWithoutPassword } = user;
@@ -144,7 +145,7 @@ export class AuthService {
     // Find user by reset token and check if token is valid
     const user = await this.userService.getUserByResetToken(resetToken);
     if (!user || !user.resetTokenExpiry || user.resetTokenExpiry < new Date()) {
-      throw new ApiError(status.BAD_REQUEST, "Invalid or expired reset token");
+      throw new ApiError(400, "Invalid or expired reset token");
     }
 
     // Update password and clear reset token
@@ -179,7 +180,7 @@ export class AuthService {
   ): Promise<void> {
     const user = await this.userService.getUserById(userId);
     if (!user) {
-      throw new ApiError(status.NOT_FOUND, "User not found");
+      throw new ApiError(404, "User not found");
     }
 
     // Verify current password
@@ -188,7 +189,7 @@ export class AuthService {
       user.password
     );
     if (!isPasswordValid) {
-      throw new ApiError(status.UNAUTHORIZED, "Current password is incorrect");
+      throw new ApiError(401, "Current password is incorrect");
     }
 
     // Update password

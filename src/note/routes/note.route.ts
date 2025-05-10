@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../../auth/middleware/auth.middleware";
+import { authMiddleware, authorize } from "../../auth/middleware/auth.middleware";
 import NoteController from "../controller/note.controller";
 import { validateEditNote, validateNote } from "../middleware/note.validation";
 import { Role } from "../../user/enums/role.enum";
@@ -8,7 +8,7 @@ const router = Router();
 const noteController = new NoteController();
 
 // All routes require authentication
-router.use(authenticate);
+router.use(authMiddleware);
 
 // Note routes with validation
 router.post(
