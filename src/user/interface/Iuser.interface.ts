@@ -6,6 +6,8 @@ export interface IUser {
   email: string;
   password: string;
   role: Role;
+  resetToken?: string;
+  resetTokenExpiry?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -10,15 +10,11 @@ export class UserService {
     // Check if user already exists
     const existingUser = await User.findOne({ email: userData.email });
     if (existingUser) {
-      throw new ApiError(
-        status.BAD_REQUEST,
-        "User with this email already exists"
-      );
+      throw new ApiError(status.CONFLICT, "Email already exists");
     }
 
     // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(userData.password, salt);
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
 
     // Create new user with hashed password
     const user = await User.create({
@@ -30,51 +26,51 @@ export class UserService {
   }
 
   // Get user by ID
-  async getUserById(id: string): Promise<IUser | null> {
-    try {
-      return await User.findById(id).select("-password");
-    } catch (error) {
-      throw error;
+  async getUserById(id: string): Promise<IUser> {
+    const user = await User.findById(id);
+    if (!user) {
+      throw new ApiError(status.NOT_FOUND, "User not found");
     }
+    return user;
   }
 
   // Get user by email
   async getUserByEmail(email: string): Promise<IUser | null> {
-    try {
-      return await User.findOne({ email });
-    } catch (error) {
-      throw error;
-    }
+    return User.findOne({ email });
+  }
+
+  // Get user by reset token
+  async getUserByResetToken(resetToken: string): Promise<IUser | null> {
+    return User.findOne({
+      resetToken,
+      resetTokenExpiry: { $gt: new Date() },
+    });
   }
 
   // Update user
-  async updateUser(
-    id: string,
-    userData: Partial<IUser>
-  ): Promise<IUser | null> {
-    try {
-      // If password is being updated, hash it
-      if (userData.password) {
-        const salt = await bcrypt.genSalt(10);
-        userData.password = await bcrypt.hash(userData.password, salt);
-      }
-
-      return await User.findByIdAndUpdate(
-        id,
-        { $set: userData },
-        { new: true }
-      ).select("-password");
-    } catch (error) {
-      throw error;
+  async updateUser(id: string, updateData: Partial<IUser>): Promise<IUser> {
+    if (updateData.password) {
+      updateData.password = await bcrypt.hash(updateData.password, 10);
     }
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true }
+    );
+
+    if (!user) {
+      throw new ApiError(status.NOT_FOUND, "User not found");
+    }
+
+    return user;
   }
 
   // Delete user
-  async deleteUser(id: string): Promise<IUser | null> {
-    try {
-      return await User.findByIdAndDelete(id);
-    } catch (error) {
-      throw error;
+  async deleteUser(id: string): Promise<void> {
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      throw new ApiError(status.NOT_FOUND, "User not found");
     }
   }
 
@@ -92,6 +88,6 @@ export class UserService {
     plainPassword: string,
     hashedPassword: string
   ): Promise<boolean> {
-    return await bcrypt.compare(plainPassword, hashedPassword);
+    return bcrypt.compare(plainPassword, hashedPassword);
   }
 }
