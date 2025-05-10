@@ -51,7 +51,7 @@ npm install
 PORT=3000
 MONGODB_URI=mongodb://localhost:27017/collaborative-notes
 JWT_SECRET=your-secret-key
-JWT_EXPIRES_IN=1d
+JWT_EXPIRES_IN=yourvalue
 ```
 
 ## Project Structure
@@ -96,20 +96,11 @@ GET /notes
 GET /notes/:id
 PUT /notes/:id
 DELETE /notes/:id
-PATCH /notes/:id/edit
+PUT /notes/:id/edit
 GET /notes/:id/history
-GET /notes/search
-GET /notes/filter
 ```
 
-### User
 
-```http
-GET /user/profile
-PUT /user/profile
-GET /user/notes
-GET /user/edits
-```
 
 ## Running the Application
 
@@ -154,14 +145,6 @@ npm install -D typescript @types/node @types/express
 npm run dev
 ```
 
-## Environment Variables
-
-| Variable       | Description               | Default                                       |
-| -------------- | ------------------------- | --------------------------------------------- |
-| PORT           | Server port               | 3000                                          |
-| MONGODB_URI    | MongoDB connection string | mongodb://localhost:27017/collaborative-notes |
-| JWT_SECRET     | JWT secret key            | your-secret-key                               |
-| JWT_EXPIRES_IN | JWT token expiration      | 1d                                            |
 
 ## Error Handling
 
@@ -180,9 +163,6 @@ The application uses a centralized error handling mechanism. All errors are form
 - Password hashing using bcrypt
 - JWT authentication
 - Input validation
-- Rate limiting
-- CORS enabled
-- XSS protection
 
 ## Contributing
 
