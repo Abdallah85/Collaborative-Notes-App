@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import ApiError from "./utils/apiError";
 import authRoutes from "./auth/routes/auth.routes";
 import handelRoute from "./middelware/handelroute.middelware";
+import noteRoutes from "./note/routes/note.route";
 
 // Load environment variables
 dotenv.config();
@@ -19,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api/auth", authRoutes);
-
+app.use("/api/notes", noteRoutes);
 // Error handling middleware
 app.use(
   (
