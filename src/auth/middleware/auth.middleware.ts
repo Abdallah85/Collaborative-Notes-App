@@ -3,6 +3,7 @@ import { AuthService } from "../services/auth.service";
 import status from "http-status";
 import ApiError from "../../utils/apiError";
 import expressAsyncHandler from "express-async-handler";
+import { Role } from "../../user/enums/role.enum";
 
 export const authenticate = expressAsyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -22,7 +23,7 @@ export const authenticate = expressAsyncHandler(
   }
 );
 
-export const authorize = (...roles: string[]) => {
+export const authorize = (...roles: Role[]) => {
   return expressAsyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       if (!res.locals.user) {
