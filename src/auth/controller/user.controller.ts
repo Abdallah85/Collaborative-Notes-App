@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
 import { IUser } from "../../user/interface/Iuser.interface";
 import ApiError from "../../utils/apiError";
+import expressAsyncHandler from "express-async-handler";
 
 export class UserController {
   private authService: AuthService;
@@ -10,7 +11,7 @@ export class UserController {
     this.authService = new AuthService();
   }
 
-  register = async (req: Request, res: Response) => {
+  register = expressAsyncHandler(async (req: Request, res: Response) => {
     const userData: IUser = req.body;
     const result = await this.authService.register(userData);
     const response = {
@@ -20,9 +21,9 @@ export class UserController {
       token: result.token,
     };
     res.status(201).json(response);
-  };
+  });
 
-  login = async (req: Request, res: Response) => {
+  login = expressAsyncHandler(async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
       const result = await this.authService.login(email, password);
@@ -36,9 +37,9 @@ export class UserController {
       }
       throw new ApiError(500, "Failed to login");
     }
-  };
+  });
 
-  forgotPassword = async (req: Request, res: Response) => {
+  forgotPassword = expressAsyncHandler(async (req: Request, res: Response) => {
     try {
       const { email } = req.body;
       if (!email) {
@@ -55,9 +56,9 @@ export class UserController {
       }
       throw new ApiError(500, "Failed to process password reset request");
     }
-  };
+  });
 
-  resetPassword = async (req: Request, res: Response) => {
+  resetPassword = expressAsyncHandler(async (req: Request, res: Response) => {
     try {
       const { token, newPassword } = req.body;
       if (!token || !newPassword) {
@@ -74,9 +75,9 @@ export class UserController {
       }
       throw new ApiError(500, "Failed to reset password");
     }
-  };
+  });
 
-  changePassword = async (req: Request, res: Response) => {
+  changePassword = expressAsyncHandler(async (req: Request, res: Response) => {
     try {
       const { currentPassword, newPassword } = req.body;
       if (!currentPassword || !newPassword) {
@@ -100,5 +101,5 @@ export class UserController {
       }
       throw new ApiError(500, "Failed to change password");
     }
-  };
+  });
 }

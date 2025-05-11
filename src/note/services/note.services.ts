@@ -5,14 +5,16 @@ import Note from "../schemas/note.schema";
 import ApiError from "../../utils/apiError";
 import EditNote from "../schemas/editnote.schema";
 import { IEditNote } from "../interface/Ieditnote.interface";
+import { IUser } from "../../user/interface/Iuser.interface";
 
 class NoteService {
-  async createNote(note: ICreateNote): Promise<INote> {
+  async createNote(note: ICreateNote, user: IUser): Promise<INote> {
     const newNote = new Note({
       title: note.title,
       content: note.content,
-      creator: note.userId,
+      creator: user.id,
     });
+    await newNote.save();
     return newNote;
   }
 
@@ -56,6 +58,17 @@ class NoteService {
     if (!note) throw new ApiError(404, "Note not found");
     await note.deleteOne();
     return note;
+  }
+
+  async searchNotes(query: string): Promise<INote[]> {
+    const notes = await Note.find({
+      $or: [
+        { title: { $regex: query, $options: "i" } },
+        { content: { $regex: query, $options: "i" } },
+      ],
+    });
+    if (!notes || notes.length === 0) throw new ApiError(404, "No notes found");
+    return notes;
   }
 }
 

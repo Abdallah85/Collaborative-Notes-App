@@ -10,6 +10,10 @@ const noteSchema = new Schema<INote>(
   { timestamps: true }
 );
 
+// Create text index
+noteSchema.index({ title: "text", content: "text" });
+
+// Ensure index is created
 const Note = model<INote>("Note", noteSchema);
 
 export default Note;

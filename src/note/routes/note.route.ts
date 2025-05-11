@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { authMiddleware, authorize } from "../../auth/middleware/auth.middleware";
+import {
+  authMiddleware,
+  authorize,
+} from "../../auth/middleware/auth.middleware";
 import NoteController from "../controller/note.controller";
 import { validateEditNote, validateNote } from "../middleware/note.validation";
 import { Role } from "../../user/enums/role.enum";
@@ -28,5 +31,7 @@ router.put(
 router.get("/:noteId/history", noteController.getNoteHistory);
 
 router.delete("/:noteId", authorize(Role.ADMIN), noteController.deleteNote);
+
+router.get("/search", noteController.searchNotes);
 
 export default router;

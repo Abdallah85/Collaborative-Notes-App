@@ -6,12 +6,17 @@ import ApiError from "../../utils/apiError";
 export class UserService {
   // Create a new user
   async createUser(userData: IUser): Promise<IUser> {
-    try {
-      const user = await User.create(userData);
-      return user;
-    } catch (error) {
-      throw new ApiError(500, "Failed to create user");
-    }
+    const user = await User.findOne({ email: userData.email });
+    if (user) throw new ApiError(400, "User already exists");
+    
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+    const newUser = await User.create({
+      ...userData,
+      password: hashedPassword,
+    });
+
+    return newUser;
   }
 
   // Get user by ID
