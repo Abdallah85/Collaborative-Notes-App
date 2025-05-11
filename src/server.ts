@@ -5,6 +5,8 @@ import ApiError from "./utils/apiError";
 import authRoutes from "./auth/routes/auth.routes";
 import noteRoutes from "./note/routes/note.route";
 import paymentRoutes from "./payment/routes/payment.routes";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger";
 
 // Load environment variables
 dotenv.config();
@@ -17,6 +19,9 @@ connectDB();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Swagger Documentation
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -40,4 +45,7 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(
+    `Swagger documentation available at http://localhost:${PORT}/api-docs`
+  );
 });
