@@ -39,7 +39,6 @@ class NoteController {
 
   searchNotes = expressAsyncHandler(async (req: Request, res: Response) => {
     const { query } = req.query;
-    console.log("Search query from request:", query);
     const notes = await this.noteService.searchNotes(query as string);
     res.status(200).json(notes);
   });
