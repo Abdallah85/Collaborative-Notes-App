@@ -18,8 +18,6 @@ export class PaymentService {
       }
     );
     const token = response.data.token;
-    console.log(token);
-    console.log(config.NTEGRATION_ID);
 
     const paymentLink = await axios.post(
       "https://accept.paymob.com/api/ecommerce/payment-links",
