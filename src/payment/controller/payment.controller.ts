@@ -32,18 +32,37 @@ export class PaymentController {
    *               email:
    *                 type: string
    *                 format: email
+   *                 description: Customer's email address
    *               full_name:
    *                 type: string
+   *                 description: Customer's full name
    *               phone_number:
    *                 type: string
+   *                 description: Customer's phone number
    *             example:
    *               email: "test@gmail.com"
-   *               full_name: "abdallah"
+   *               full_name: "John Doe"
    *               phone_number: "+200111111111"
    *     responses:
    *       200:
    *         description: Payment link created successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: Payment link created successfully
+   *                 paymentLink:
+   *                   type: string
+   *                   description: URL to the payment page
    *       400:
+   *         description: Invalid input data
+   *       401:
+   *         description: Unauthorized
+   *       500:
+   *         description: Server error
    */
 
   createPaymentLink = expressAsyncHandler(

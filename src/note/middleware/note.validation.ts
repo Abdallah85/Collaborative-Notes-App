@@ -30,7 +30,12 @@ export const validateEditNote = [
     .isLength({ min: 1 })
     .withMessage("Content cannot be empty"),
 
-  param("noteId").trim().notEmpty().withMessage("Note ID is required"),
+  param("noteId")
+    .trim()
+    .notEmpty()
+    .withMessage("Note ID is required")
+    .isMongoId()
+    .withMessage("this is not mongo id"),
 
   validationMiddelware,
 ];

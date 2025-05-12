@@ -33,15 +33,39 @@ class NoteController {
    *                 type: string
    *                 minLength: 3
    *                 maxLength: 100
+   *                 description: Title of the note
    *               content:
    *                 type: string
+   *                 description: Content of the note
+   *             example:
+   *               title: "Meeting Notes"
+   *               content: "Discussion points from today's meeting..."
    *     responses:
    *       201:
    *         description: Note created successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 _id:
+   *                   type: string
+   *                 title:
+   *                   type: string
+   *                 content:
+   *                   type: string
+   *                 createdAt:
+   *                   type: string
+   *                   format: date-time
+   *                 updatedAt:
+   *                   type: string
+   *                   format: date-time
    *       400:
-   *         description: Invalid input
+   *         description: Invalid input data
    *       401:
    *         description: Unauthorized
+   *       500:
+   *         description: Server error
    */
   createNote = expressAsyncHandler(async (req: Request, res: Response) => {
     const noteData: ICreateNote = req.body;
@@ -64,6 +88,7 @@ class NoteController {
    *         required: true
    *         schema:
    *           type: string
+   *         description: ID of the note to update
    *     requestBody:
    *       required: true
    *       content:
@@ -75,13 +100,34 @@ class NoteController {
    *             properties:
    *               content:
    *                 type: string
+   *                 description: Updated content of the note
+   *             example:
+   *               content: "Updated meeting notes..."
    *     responses:
    *       200:
    *         description: Note updated successfully
-   *       404:
-   *         description: Note not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 _id:
+   *                   type: string
+   *                 title:
+   *                   type: string
+   *                 content:
+   *                   type: string
+   *                 updatedAt:
+   *                   type: string
+   *                   format: date-time
+   *       400:
+   *         description: Invalid input data
    *       401:
    *         description: Unauthorized
+   *       404:
+   *         description: Note not found
+   *       500:
+   *         description: Server error
    */
   updateNote = expressAsyncHandler(async (req: Request, res: Response) => {
     const { content } = req.body;
@@ -104,13 +150,28 @@ class NoteController {
    *         required: true
    *         schema:
    *           type: string
+   *         description: ID of the note to get history for
    *     responses:
    *       200:
    *         description: Note history retrieved successfully
-   *       404:
-   *         description: Note not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 type: object
+   *                 properties:
+   *                   content:
+   *                     type: string
+   *                   updatedAt:
+   *                     type: string
+   *                     format: date-time
    *       401:
    *         description: Unauthorized
+   *       404:
+   *         description: Note not found
+   *       500:
+   *         description: Server error
    */
   getNoteHistory = expressAsyncHandler(async (req: Request, res: Response) => {
     const noteId = new mongoose.Types.ObjectId(req.params.noteId);
@@ -132,13 +193,24 @@ class NoteController {
    *         required: true
    *         schema:
    *           type: string
+   *         description: ID of the note to delete
    *     responses:
    *       200:
    *         description: Note deleted successfully
-   *       404:
-   *         description: Note not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: Note deleted successfully
    *       401:
    *         description: Unauthorized
+   *       404:
+   *         description: Note not found
+   *       500:
+   *         description: Server error
    */
   deleteNote = expressAsyncHandler(async (req: Request, res: Response) => {
     const noteId = new mongoose.Types.ObjectId(req.params.noteId);
@@ -160,13 +232,32 @@ class NoteController {
    *         required: true
    *         schema:
    *           type: string
+   *         description: Search query to find notes
    *     responses:
    *       200:
    *         description: Notes found successfully
-   *       404:
-   *         description: No notes found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 type: object
+   *                 properties:
+   *                   _id:
+   *                     type: string
+   *                   title:
+   *                     type: string
+   *                   content:
+   *                     type: string
+   *                   createdAt:
+   *                     type: string
+   *                     format: date-time
    *       401:
    *         description: Unauthorized
+   *       404:
+   *         description: No notes found
+   *       500:
+   *         description: Server error
    */
   searchNotes = expressAsyncHandler(async (req: Request, res: Response) => {
     const { query } = req.query;
@@ -185,8 +276,29 @@ class NoteController {
    *     responses:
    *       200:
    *         description: Notes retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 type: object
+   *                 properties:
+   *                   _id:
+   *                     type: string
+   *                   title:
+   *                     type: string
+   *                   content:
+   *                     type: string
+   *                   createdAt:
+   *                     type: string
+   *                     format: date-time
+   *                   updatedAt:
+   *                     type: string
+   *                     format: date-time
    *       401:
    *         description: Unauthorized
+   *       500:
+   *         description: Server error
    */
   getAllNotes = expressAsyncHandler(async (req: Request, res: Response) => {
     const notes = await this.noteService.getNotes();

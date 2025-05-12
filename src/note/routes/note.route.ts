@@ -23,7 +23,6 @@ router.post(
 
 router.put(
   "/:noteId",
-  authorize(Role.ADMIN),
   validateEditNote as any,
   noteController.updateNote
 );
