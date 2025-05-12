@@ -45,15 +45,6 @@ cd collaborative-notes-app
 npm install
 ```
 
-3. Create a `.env` file in the root directory:
-
-```env
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/collaborative-notes
-JWT_SECRET=your-secret-key
-JWT_EXPIRES_IN=yourvalue
-```
-
 ## Project Structure
 
 ```
@@ -100,8 +91,6 @@ PUT /notes/:id/edit
 GET /notes/:id/history
 ```
 
-
-
 ## Running the Application
 
 1. Start MongoDB:
@@ -144,7 +133,6 @@ npm install -D typescript @types/node @types/express
 ```bash
 npm run dev
 ```
-
 
 ## Error Handling
 
