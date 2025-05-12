@@ -44,7 +44,7 @@ export class PaymentController {
    *               full_name: "John Doe"
    *               phone_number: "+200111111111"
    *     responses:
-   *       200:
+   *       201:
    *         description: Payment link created successfully
    *         content:
    *           application/json:
@@ -75,7 +75,7 @@ export class PaymentController {
       );
 
       res
-        .status(200)
+        .status(201)
         .json({ message: "Payment link created successfully", paymentLink });
     }
   );
