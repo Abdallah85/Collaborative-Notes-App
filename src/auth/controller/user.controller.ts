@@ -24,19 +24,15 @@ export class UserController {
   });
 
   login = expressAsyncHandler(async (req: Request, res: Response) => {
-    try {
-      const { email, password } = req.body;
-      const result = await this.authService.login(email, password);
-      res.status(200).json({
-        status: "success",
-        data: result,
-      });
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      throw new ApiError(500, "Failed to login");
-    }
+    const { email, password } = req.body;
+    const result = await this.authService.login(email, password);
+    const response = {
+      userName: result.user.name,
+      email: result.user.email,
+      role: result.user.role,
+      token: result.token,
+    };
+    res.status(200).json(response);
   });
 
   forgotPassword = expressAsyncHandler(async (req: Request, res: Response) => {
